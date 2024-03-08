@@ -1,0 +1,9 @@
+aws_certificates/1b8f0e6320e999276e9501bfb85ae103785cfe76a134c0c6986c89f2af974a85-certificate.pem.crt
+aws_certificates/1b8f0e6320e999276e9501bfb85ae103785cfe76a134c0c6986c89f2af974a85-private.pem.key
+aws_certificates/1b8f0e6320e999276e9501bfb85ae103785cfe76a134c0c6986c89f2af974a85-public.pem.key
+aws_certificates/AmazonRootCA1.pem
+aws_certificates/AmazonRootCA3.pem
+aws_certificates/1b8f0e-certificate.pem.crt
+aws_certificates/1b8f0e-private.pem.key
+aws_certificates/1b8f0e-public.pem.key
+include/common/aws_certificates.hpp

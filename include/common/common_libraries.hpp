@@ -3,5 +3,7 @@
 
 #include <Arduino.h>
 #include "time.h"
+#include <ArduinoJson.h>
+#include <vector>
 
 #endif

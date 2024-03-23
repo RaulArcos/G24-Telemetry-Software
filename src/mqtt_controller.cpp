@@ -5,6 +5,7 @@
  */
 
 #include "../include/mqtt_controller.hpp"
+#include <ArduinoJson.h>
 
 
 MQTTController::MQTTController(){
@@ -34,6 +35,10 @@ void MQTTController::connect(){
             delay(5000);
         }
     }
+}
+
+void MQTTController::publish_telemetry(const char* topic, const char* message){
+    _client.publish(topic, message);
 }
 
 void MQTTController::callback(char* topic, byte* payload, unsigned int length){

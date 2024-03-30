@@ -20,15 +20,15 @@ void setup() {
     Serial.println("G24::WifiController - Attempting Wifi Conection...");
     
     //Connect to WiFi
-    if(wifiController.connect()){
-        Serial.println("G24::WifiController - Connected to WiFi!");
-    }else{
-        Serial.println("G24::WifiController - Failed to connect to WiFi! Timeout!");
-    }
+    // if(wifiController.connect()){
+    //     Serial.println("G24::WifiController - Connected to WiFi!");
+    // }else{
+    //     Serial.println("G24::WifiController - Failed to connect to WiFi! Timeout!");
+    // }
 
     //Connect to MQTT
-    mqttController.connect();
-    Serial.println("G24::MQTTController - Connected to MQTT!");
+    // mqttController.connect();
+    // Serial.println("G24::MQTTController - Connected to MQTT!");
 
     //Start CAN Controller
     xTaskCreate(
@@ -44,8 +44,15 @@ void setup() {
 
 void loop(){
 
-doc = dataProcessor.process({test});
-mqttController.publish_telemetry("g24/telemetry", doc);
-test = test + 1;
-delay(100);
+// doc = dataProcessor.process({test});
+// mqttController.publish_telemetry("g24/telemetry", doc);
+// test = test + 1;
+
+// canController.listen();
+EngineData engdata = canController.getEngineData();
+Serial.printf("RPM: %d\n", engdata.getRPM());
+Serial.printf("TPS: %d\n", engdata.getTPS());
+Serial.printf("ETC: %d\n", engdata.getETC());
+
+delay(1000);
 }

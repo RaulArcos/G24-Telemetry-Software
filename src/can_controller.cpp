@@ -7,8 +7,8 @@
 #include "../include/can_controller.hpp"
 
 CANController::CANController(){
-    twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT((gpio_num_t)RX_PIN, (gpio_num_t)TX_PIN, TWAI_MODE_LISTEN_ONLY);
-    twai_timing_config_t t_config = TWAI_TIMING_CONFIG_500KBITS();
+    twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT((gpio_num_t)TX_PIN, (gpio_num_t)RX_PIN, TWAI_MODE_NORMAL);
+    twai_timing_config_t t_config = TWAI_TIMING_CONFIG_1MBITS();
     twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
 
     esp_err_t install_status = twai_driver_install(&g_config, &t_config, &f_config);
@@ -32,21 +32,23 @@ CANController::~CANController(){
 void CANController::listen(){
     while(true){
         if(twai_receive(&_rx_message, pdMS_TO_TICKS(POLLING_RATE_MS)) == ESP_OK){
+            Serial.printf("ID: %x\nByte:", _rx_message.identifier);
+            if (!(_rx_message.rtr)) {
+                for (int i = 0; i < _rx_message.data_length_code; i++) {
+                Serial.printf(" %d = %02x,", i, _rx_message.data[i]);
+                }
+            }
+            Serial.println("");
+
             switch(_rx_message.identifier){
                 case 1:
-                    _data.RPM = (_rx_message.data[3] * 256 + _rx_message.data[4]) / 4;
-                    Serial.println(_data.RPM);
-                    break;
-                case 2:
-                    _data.TPS = _rx_message.data[3] * 100 / 255;
-                    _data.MAP = _rx_message.data[4] * 100 / 255;
-                    _data.IAT = _rx_message.data[5] - 40;
-                    _data.BAT = _rx_message.data[6] / 2;
-                    _data.ECT = _rx_message.data[7] - 40;
+                    _engdata.setframe(_rx_message.data[0], _rx_message.data[1], _rx_message.data[2], _rx_message.data[3], _rx_message.data[4], _rx_message.data[5]);
+                    Serial.println("Engine Data Received");
                     break;
                 default:
                     break;
             }
         }
+        delay(10);
     }
 }

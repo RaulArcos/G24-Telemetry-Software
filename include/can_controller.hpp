@@ -3,7 +3,7 @@
 
 #define RX_PIN 5
 #define TX_PIN 4
-#define POLLING_RATE_MS 1000
+#define POLLING_RATE_MS 100
 
 #include "driver/twai.h"
 #include "common/common_libraries.hpp"
@@ -20,9 +20,13 @@ public:
         controller->listen();
         vTaskDelete(NULL); // Optionally delete the task if listen ever returns
     }
+
+    const EngineData getEngineData(){
+        return _engdata;
+    }
     
 private:
-    G24TelemetryData _data;
+    EngineData _engdata;
     twai_message_t _rx_message;
 };
 

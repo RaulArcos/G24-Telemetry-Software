@@ -3,6 +3,7 @@
 #include "include/wifi_controller.hpp"
 #include "include/data_processor.hpp"
 #include "include/mqtt_controller.hpp"
+#include "driver/gpio.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -11,6 +12,13 @@ WifiController wifiController("FormulaGades", "g24evo24");
 MQTTController mqttController;
 DataProcessor dataProcessor;
 CANController canController;
+
+const gpio_num_t buttonPin = GPIO_NUM_2; // Change as per your circuit
+const uint64_t debounceInterval = 50; // Debounce interval in milliseconds
+uint64_t lastDebounceTime = 0; // Variable to store last debounce time
+
+twai_message_t m1 = canController.createBoolMessage(false, false, false, false, false, false, false, true);
+twai_message_t m2 = canController.createBoolMessage(false, false, false, false, false, false, false, false);
 
 int test = 0;
 char* doc;
@@ -40,19 +48,18 @@ void setup() {
         NULL               
     );
 
+    gpio_set_direction(buttonPin, GPIO_MODE_INPUT);
+    gpio_set_pull_mode(buttonPin, GPIO_PULLUP_ONLY);
+
 }
 
-void loop(){
-
-// doc = dataProcessor.process({test});
-// mqttController.publish_telemetry("g24/telemetry", doc);
-// test = test + 1;
-
-// canController.listen();
-EngineData engdata = canController.getEngineData();
-Serial.printf("RPM: %d\n", engdata.getRPM());
-Serial.printf("TPS: %d\n", engdata.getTPS());
-Serial.printf("ETC: %d\n", engdata.getETC());
-
-delay(1000);
+void loop(){  
+    bool currentButtonState = gpio_get_level(buttonPin);
+    if (!currentButtonState){
+        canController.send_frame(m1);
+    }
+    else{
+        canController.send_frame(m2);
+    }
+    delay(10);
 }

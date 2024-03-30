@@ -29,26 +29,43 @@ CANController::~CANController(){
     twai_driver_uninstall();
 }
 
+void CANController::send_frame(twai_message_t message){
+    twai_transmit(&message, pdMS_TO_TICKS(TRANSMIT_RATE_MS));
+}
+
+twai_message_t CANController::createBoolMessage(bool b0, bool b1, bool b2, bool b3, bool b4, bool b5, bool b6, bool b7){
+    twai_message_t message;
+    memset(&message, 0, sizeof(message)); 
+    message.identifier = 0x001;
+    message.data[0] = (b7 << 7) | (b6 << 6) | (b5 << 5) | (b4 << 4) |
+                      (b3 << 3) | (b2 << 2) | (b1 << 1) | b0;
+    message.data_length_code = 8;
+    message.flags = TWAI_MSG_FLAG_NONE; 
+    return message;
+}
+
 void CANController::listen(){
     while(true){
         if(twai_receive(&_rx_message, pdMS_TO_TICKS(POLLING_RATE_MS)) == ESP_OK){
-            Serial.printf("ID: %x\nByte:", _rx_message.identifier);
-            if (!(_rx_message.rtr)) {
-                for (int i = 0; i < _rx_message.data_length_code; i++) {
-                Serial.printf(" %d = %02x,", i, _rx_message.data[i]);
-                }
-            }
-            Serial.println("");
-
-            switch(_rx_message.identifier){
+            switch(_rx_message.data[0]){
                 case 1:
-                    _engdata.setframe(_rx_message.data[0], _rx_message.data[1], _rx_message.data[2], _rx_message.data[3], _rx_message.data[4], _rx_message.data[5]);
-                    Serial.println("Engine Data Received");
+                    _engdata.setframe1(_rx_message.data[1], _rx_message.data[2], _rx_message.data[3], _rx_message.data[4], _rx_message.data[5], _rx_message.data[6], _rx_message.data[7]);
+                    break;
+                case 2:
+                    _engdata.setframe2(_rx_message.data[1], _rx_message.data[2], _rx_message.data[3], _rx_message.data[4], _rx_message.data[5], _rx_message.data[6], _rx_message.data[7]);
+                    break;
+                case 3:
+                    _batwsdata.setframe1(_rx_message.data[1], _rx_message.data[2], _rx_message.data[3], _rx_message.data[4], _rx_message.data[5], _rx_message.data[6]);
+                    break;
+                case 4:
+                    _batwsdata.setframe2(_rx_message.data[1], _rx_message.data[2], _rx_message.data[3], _rx_message.data[4]);
+                    break;
+                case 5:
+                    _tempgeardata.setframe1(_rx_message.data[1], _rx_message.data[2], _rx_message.data[3], _rx_message.data[4], _rx_message.data[5]);
                     break;
                 default:
                     break;
             }
         }
-        delay(10);
     }
 }

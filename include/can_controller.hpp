@@ -3,7 +3,8 @@
 
 #define RX_PIN 5
 #define TX_PIN 4
-#define POLLING_RATE_MS 100
+#define POLLING_RATE_MS 10
+#define TRANSMIT_RATE_MS 10
 
 #include "driver/twai.h"
 #include "common/common_libraries.hpp"
@@ -14,6 +15,8 @@ public:
     CANController();
     ~CANController();
     void listen();
+    void send_frame(twai_message_t message);
+    twai_message_t createBoolMessage(bool b0, bool b1, bool b2, bool b3, bool b4, bool b5, bool b6, bool b7);
 
     static void listenTask(void *arg) {
         CANController *controller = static_cast<CANController *>(arg);
@@ -24,9 +27,19 @@ public:
     const EngineData getEngineData(){
         return _engdata;
     }
+
+    const BattWheelSpeedData getBattWheelSpeedData(){
+        return _batwsdata;
+    }
+
+    const TempGearData getTempGearData(){
+        return _tempgeardata;
+    }
     
 private:
     EngineData _engdata;
+    BattWheelSpeedData _batwsdata;
+    TempGearData _tempgeardata;
     twai_message_t _rx_message;
 };
 

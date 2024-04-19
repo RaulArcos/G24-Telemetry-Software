@@ -11,7 +11,7 @@
 WifiController wifiController("FormulaGades", "g24evo24");
 MQTTController mqttController;
 DataProcessor dataProcessor;
-CANController canController;
+CANController *canController = new CANController();
 
 const gpio_num_t buttonPin = GPIO_NUM_2; // Change as per your circuit
 const uint64_t debounceInterval = 50; // Debounce interval in milliseconds
@@ -28,22 +28,22 @@ void setup() {
     Serial.println("G24::WifiController - Attempting Wifi Conection...");
     
     //Connect to WiFi
-    // if(wifiController.connect()){
-    //     Serial.println("G24::WifiController - Connected to WiFi!");
-    // }else{
-    //     Serial.println("G24::WifiController - Failed to connect to WiFi! Timeout!");
-    // }
+    if(wifiController.connect()){
+      Serial.println("G24::WifiController - Connected to WiFi!");
+    }else{
+      Serial.println("G24::WifiController - Failed to connect to WiFi! Timeout!");
+    }
 
     //Connect to MQTT
-    // mqttController.connect();
-    // Serial.println("G24::MQTTController - Connected to MQTT!");
+    mqttController.connect();
+    Serial.println("G24::MQTTController - Connected to MQTT!");
 
     //Start CAN Controller
     xTaskCreate(
         CANController::listenTask,
         "CANController",    
         4096,              
-        &canController,              
+        canController,              
         1,                
         NULL               
     );
@@ -54,12 +54,17 @@ void setup() {
 }
 
 void loop(){  
-    bool currentButtonState = gpio_get_level(buttonPin);
-    if (!currentButtonState){
-        canController.send_frame(m1);
-    }
-    else{
-        canController.send_frame(m2);
-    }
-    delay(10);
+  // doc = dataProcessor.process({test});
+  // mqttController.publish_telemetry("g24/telemetry", doc);
+  // test = test + 1;
+  // delay(100);
+
+  TempGearData canController->getTempGearData();
+  BattWheelSpeedData canController->getBattWheelSpeedData();
+  EngineData canController->getEngineData();
+
+  doc = dataProcessor.process({EngineData.getRMP()});
+  mqttController.publish_telemetry("g24/telemetry", doc);
+  delay(100);
+
 }

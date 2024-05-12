@@ -46,7 +46,9 @@ twai_message_t CANController::createBoolMessage(bool b0, bool b1, bool b2, bool 
 
 void CANController::listen(){
     while(true){
+        // Serial.println("Listening...");
         if(twai_receive(&_rx_message, pdMS_TO_TICKS(POLLING_RATE_MS)) == ESP_OK){
+            Serial.println(_rx_message.data[4]);
             switch(_rx_message.data[0]){
                 case 1:
                     _engdata.setframe1(_rx_message.data[1], _rx_message.data[2], _rx_message.data[3], _rx_message.data[4], _rx_message.data[5], _rx_message.data[6], _rx_message.data[7]);

@@ -17,8 +17,8 @@ const gpio_num_t buttonPin = GPIO_NUM_2; // Change as per your circuit
 const uint64_t debounceInterval = 50; // Debounce interval in milliseconds
 uint64_t lastDebounceTime = 0; // Variable to store last debounce time
 
-twai_message_t m1 = canController.createBoolMessage(false, false, false, false, false, false, false, true);
-twai_message_t m2 = canController.createBoolMessage(false, false, false, false, false, false, false, false);
+// twai_message_t m1 = canController.createBoolMessage(false, false, false, false, false, false, false, true);
+// twai_message_t m2 = canController.createBoolMessage(false, false, false, false, false, false, false, false);
 
 int test = 0;
 char* doc;
@@ -59,12 +59,14 @@ void loop(){
   // test = test + 1;
   // delay(100);
 
-  TempGearData canController->getTempGearData();
-  BattWheelSpeedData canController->getBattWheelSpeedData();
-  EngineData canController->getEngineData();
+  TempGearData temp = canController->getTempGearData();
+  BattWheelSpeedData batt = canController->getBattWheelSpeedData();
+  EngineData eng = canController->getEngineData();
 
-  doc = dataProcessor.process({EngineData.getRMP()});
-  mqttController.publish_telemetry("g24/telemetry", doc);
+  doc = dataProcessor.process({temp.getECT()});
+  Serial.println(doc);
+
+  // mqttController.publish_telemetry("g24/telemetry", doc);
   delay(100);
 
 }

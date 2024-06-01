@@ -9,9 +9,9 @@
 
 
 MQTTController::MQTTController(){
-    _espClient.setCACert(_awsCertificates.root_ca);
-    _espClient.setCertificate(_awsCertificates.cert);
-    _espClient.setPrivateKey(_awsCertificates.private_key);
+    // _espClient.setCACert(_awsCertificates.root_ca);
+    // _espClient.setCertificate(_awsCertificates.cert);
+    // _espClient.setPrivateKey(_awsCertificates.private_key);
 
     _client.setServer(_mqtt_server, _mqtt_port);
     _client.setCallback(MQTTController::callback);
@@ -26,8 +26,8 @@ void MQTTController::connect(){
         if (_client.connect(clientId.c_str())) {
         Serial.println("conectada");
     
-        _client.publish("ei_out", "Hola mis niños del elektrokics");
-        _client.subscribe("ei_in");
+        // _client.publish("ei_out", "Hola mis niños del elektrokics");
+        // _client.subscribe("ei_in");
         } else {
             Serial.print("failed, rc=");
             Serial.print(_client.state());

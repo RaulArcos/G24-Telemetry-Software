@@ -14,9 +14,9 @@ public:
     void publish_telemetry(const char* topic, const char* message);
 
 private:
-    const char* _mqtt_server = "a3gqsinr6fjc3h-ats.iot.eu-central-1.amazonaws.com";
-    const int _mqtt_port = 8883;
-    WiFiClientSecure _espClient;
+    const char* _mqtt_server = "broker.hivemq.com";
+    const int _mqtt_port = 1883;
+    WiFiClient _espClient;
     PubSubClient _client = PubSubClient(_espClient);
     AWSCertificates _awsCertificates;
 };

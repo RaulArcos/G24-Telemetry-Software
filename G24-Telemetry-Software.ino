@@ -54,19 +54,18 @@ void setup() {
 }
 
 void loop(){  
-  // doc = dataProcessor.process({test});
-  // mqttController.publish_telemetry("g24/telemetry", doc);
-  // test = test + 1;
-  // delay(100);
-
-  TempGearData temp = canController->getTempGearData();
-  BattWheelSpeedData batt = canController->getBattWheelSpeedData();
-  EngineData eng = canController->getEngineData();
-
-  doc = dataProcessor.process({temp.getECT()});
-  Serial.println(doc);
-
-  // mqttController.publish_telemetry("g24/telemetry", doc);
+  doc = dataProcessor.process({test});
+  mqttController.publish_telemetry("g24/telemetry", doc);
+  test = test + 1;
   delay(100);
+
+  // TempGearData temp = canController->getTempGearData();
+  // BattWheelSpeedData batt = canController->getBattWheelSpeedData();
+  // EngineData eng = canController->getEngineData();
+
+  // doc = dataProcessor.process({temp.getECT()});
+  // Serial.println(doc);
+
+  // mqttController.publish_telemetry("g24/telemetry", doc);
 
 }

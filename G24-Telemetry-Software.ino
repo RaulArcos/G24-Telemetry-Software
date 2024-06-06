@@ -3,7 +3,6 @@
 #include "include/wifi_controller.hpp"
 #include "include/data_processor.hpp"
 #include "include/mqtt_controller.hpp"
-#include "driver/gpio.h"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -11,17 +10,27 @@
 WifiController wifiController("FormulaGades", "g24evo24");
 MQTTController mqttController;
 DataProcessor dataProcessor;
-CANController *canController = new CANController();
+CANController canController;
 
-const gpio_num_t buttonPin = GPIO_NUM_2; // Change as per your circuit
-const uint64_t debounceInterval = 50; // Debounce interval in milliseconds
-uint64_t lastDebounceTime = 0; // Variable to store last debounce time
+PubSubClient* mqttClient;
 
-// twai_message_t m1 = canController.createBoolMessage(false, false, false, false, false, false, false, true);
-// twai_message_t m2 = canController.createBoolMessage(false, false, false, false, false, false, false, false);
+void mqtt_callback(char* topic, byte* payload, unsigned int length){
+    Serial.print("Message arrived [");
+    Serial.print(topic);
+    Serial.print("] ");
+    for (int i = 0; i < length; i++) {
+        Serial.print((char)payload[i]);
+    }
+    Serial.println();
 
-int test = 0;
-char* doc;
+    // if (strcmp(topic, mqttController.mode_topic) == 0) {
+    //     tpvTimer.set_mode(payload, length);
+    // }else if(strcmp(topic, mqttController.start_topic) == 0){
+    //     tpvTimer.start(payload, length);
+    // }else if(strcmp(topic, "G24/tpv/test") == 0){
+    //     timeSync.trigger(payload, length);
+    // }
+}
 
 void setup() {
     Serial.begin(115200);
@@ -35,37 +44,29 @@ void setup() {
     }
 
     //Connect to MQTT
+    mqttController.set_callback(mqtt_callback);
     mqttController.connect();
     Serial.println("G24::MQTTController - Connected to MQTT!");
+
+    dataProcessor.set_mqtt_controller(&mqttController);
+    canController.set_data_proccessor(&dataProcessor);
 
     //Start CAN Controller
     xTaskCreate(
         CANController::listenTask,
         "CANController",    
         4096,              
-        canController,              
+        &canController,              
         1,                
         NULL               
     );
-
-    gpio_set_direction(buttonPin, GPIO_MODE_INPUT);
-    gpio_set_pull_mode(buttonPin, GPIO_PULLUP_ONLY);
-
 }
 
 void loop(){  
-  doc = dataProcessor.process({test});
-  mqttController.publish_telemetry("g24/telemetry", doc);
-  test = test + 1;
-  delay(100);
-
-  // TempGearData temp = canController->getTempGearData();
-  // BattWheelSpeedData batt = canController->getBattWheelSpeedData();
-  // EngineData eng = canController->getEngineData();
-
-  // doc = dataProcessor.process({temp.getECT()});
-  // Serial.println(doc);
-
-  // mqttController.publish_telemetry("g24/telemetry", doc);
-
+  if (!mqttClient->connected()) {
+      mqttController.connect();
+  }
+  mqttClient->loop();
+  // mqttController.publish_status(mqttController.toString(tpvTimer.get_status()), mqttController.toString(tpvTimer.get_mode()));
+  delay(10);
 }

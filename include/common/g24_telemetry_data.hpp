@@ -13,11 +13,6 @@ class EngineData{
             _tps = (tpsHigh * 256 + tpsLow);
             _map = (maphigh * 256 + maplow);
             _d4 = d4;
-
-            // Serial.printf("RPM: %d\n", _rpm);
-            // Serial.printf("TPS: %d\n", _tps);
-            // Serial.printf("MAP: %d\n", _map);
-            // Serial.printf("D4: %d\n", _d4);
         }
         void setframe2(int d1, int d2, int d3, int lambdatargethigh, int lambdatargetlow, int lambdahigh, int lambdalow){
             _d1 = d1;
@@ -26,13 +21,6 @@ class EngineData{
             _lambdatarget = (lambdatargethigh * 256 + lambdatargetlow);
             _lambda = (lambdahigh * 256 + lambdalow);
             _lambda = _lambda / 1000;
-            // Serial.printf("Lambda: %f\n", _lambda);
-
-            // Serial.printf("Lambda Target: %d\n", _lambdatarget);
-            // Serial.printf("Lambda: %d\n", _lambda);
-            // Serial.printf("D1: %d\n", _d1);
-            // Serial.printf("D2: %d\n", _d2);
-            // Serial.printf("D3: %d\n", _d3);
         }
         const int getRPM(){
             return _rpm;
@@ -81,7 +69,6 @@ class BattWheelSpeedData{
             _batt_volt = _batt_volt / 100;
             _lf_ws = (lfwsHigh * 256 + lfwsLow);
             _rf_ws = (rfwsHigh * 256 + rfwsLow);
-            // Serial.printf("Batt Volt: %f\n", _batt_volt);
         }
         void setframe2(int lrwsHigh, int lrwsLow, int rrwsHigh, int rrwsLow){
             _lr_ws = (lrwsHigh * 256 + lrwsLow);
@@ -117,9 +104,6 @@ class TempGearData{
             _iat = (iatHigh * 256 + iatLow);
             _ect = (ectHigh * 256 + ectLow);
             _gear = gear;
-        //     Serial.printf("IAT: %d\n", _iat);
-        //     Serial.printf("ECT: %d\n", _ect);
-        //     Serial.printf("Gear: %d\n", _gear);
         }
         const double getIAT(){
             return _iat;

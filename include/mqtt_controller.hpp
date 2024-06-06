@@ -2,15 +2,15 @@
 #define MQTTCONTROLLER_HPP
 
 #include "common/common_libraries.hpp"
-#include "common/aws_certificates.hpp"
 #include <PubSubClient.h>
-#include <WiFiClientSecure.h>
+#include <WiFiClient.h>
 
 class MQTTController {
 public:
     MQTTController();
     void connect();
     static void callback(char* topic, byte* payload, unsigned int length);
+    void set_callback(std::function<void(char*, byte*, unsigned int)> func);
     void publish_telemetry(const char* topic, const char* message);
 
 private:
@@ -18,7 +18,6 @@ private:
     const int _mqtt_port = 1883;
     WiFiClient _espClient;
     PubSubClient _client = PubSubClient(_espClient);
-    AWSCertificates _awsCertificates;
 };
 
 #endif

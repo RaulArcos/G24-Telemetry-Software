@@ -8,31 +8,31 @@
 #include <ArduinoJson.h>
 
 
-MQTTController::MQTTController(){
-    // _espClient.setCACert(_awsCertificates.root_ca);
-    // _espClient.setCertificate(_awsCertificates.cert);
-    // _espClient.setPrivateKey(_awsCertificates.private_key);
-
+MQTTController::MQTTController() {
     _client.setServer(_mqtt_server, _mqtt_port);
-    _client.setCallback(MQTTController::callback);
 }
 
-void MQTTController::connect(){
+void MQTTController::set_callback(std::function<void(char*, byte*, unsigned int)> func){
+    _client.setCallback(func);
+}
+
+void MQTTController::connect() {
     while (!_client.connected()) {
         Serial.print("Attempting MQTT connection...");
         String clientId = "ESP32-";
         clientId += String(random(0xffff), HEX);
         
         if (_client.connect(clientId.c_str())) {
-        Serial.println("conectada");
-    
-        // _client.publish("ei_out", "Hola mis niños del elektrokics");
-        // _client.subscribe("ei_in");
+            Serial.println("Connected");
+
+            // _client.subscribe(mode_topic);
+            // _client.subscribe(start_topic);
+            // _client.subscribe("G24/tpv/test");
         } else {
-            Serial.print("failed, rc=");
+            Serial.print("Failed, rc=");
             Serial.print(_client.state());
-            Serial.println(" Esperando 5 segundos");
-            delay(5000);
+            Serial.println(" Waiting 1 seconds");
+            delay(1000);
         }
     }
 }

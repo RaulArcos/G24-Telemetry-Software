@@ -21,4 +21,17 @@ char* DataProcessor::process(std::vector<float> data){
 
 void DataProcessor::set_mqtt_controller(MQTTController *mqtt_controller){
     _mqtt_controller = mqtt_controller;
+    _mqttClient = _mqtt_controller->get_client();
+}
+
+void DataProcessor::test(int i, int j){
+    if(!_mqttClient->connected()){
+        return;
+    }
+    StaticJsonDocument<200> doc;
+    doc["rpm"] = i;
+    doc["tps"] = j;
+    char buffer[256];
+    serializeJson(doc, buffer);
+    _mqtt_controller->publish_test(buffer);
 }

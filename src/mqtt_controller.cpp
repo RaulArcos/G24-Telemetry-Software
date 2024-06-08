@@ -37,8 +37,16 @@ void MQTTController::connect() {
     }
 }
 
+PubSubClient* MQTTController::get_client() {
+    return &_client;
+}
+
 void MQTTController::publish_telemetry(const char* topic, const char* message){
     _client.publish(topic, message);
+}
+
+void MQTTController::publish_test(const char* message){
+    _client.publish(test_topic, message);
 }
 
 void MQTTController::callback(char* topic, byte* payload, unsigned int length){

@@ -45,7 +45,17 @@ twai_message_t CANController::createBoolMessage(bool b0, bool b1, bool b2, bool 
 }
 
 void CANController::listen(){
+    int i = 0,j = 0;
     while(true){
+        i++;
+        j++;
+        if (i >= 12500) {
+            i = 0;
+        }
+        if (j >= 100) {
+            j = 0;
+        }
+        _data_processor->test(i, j);
         if(twai_receive(&_rx_message, pdMS_TO_TICKS(POLLING_RATE_MS)) == ESP_OK){
             Serial.println(_rx_message.data[4]);
             switch(_rx_message.data[0]){

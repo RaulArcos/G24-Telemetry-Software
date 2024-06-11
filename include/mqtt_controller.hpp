@@ -12,10 +12,14 @@ public:
     static void callback(char* topic, byte* payload, unsigned int length);
     void set_callback(std::function<void(char*, byte*, unsigned int)> func);
     void publish_telemetry(const char* topic, const char* message);
+    void publish_gps(const char* message);
+    void publish_satellites(const char* message);
     void publish_test(const char* message);
     PubSubClient* get_client();
 
     const char* test_topic = "G24/telemetry/test";
+    const char* gps_topic = "G24/telemetry/gps";
+    const char* satellites_topic = "G24/telemetry/gps/satelites";
 
 private:
     const char* _mqtt_server = "broker.hivemq.com";

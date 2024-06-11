@@ -11,6 +11,8 @@ public:
     char* process(std::vector<float> data);
     void set_mqtt_controller(MQTTController *mqtt_controller);
     void test(int i, int j);
+    void send_gps_data(float lat, float lng, float speed);
+    void send_satellites_data(int satellites);
 
 private:
     MQTTController *_mqtt_controller;

@@ -49,6 +49,14 @@ void MQTTController::publish_test(const char* message){
     _client.publish(test_topic, message);
 }
 
+void MQTTController::publish_gps(const char* message){
+    _client.publish(gps_topic, message);
+}
+
+void MQTTController::publish_satellites(const char* message){
+    _client.publish(satellites_topic, message);
+}
+
 void MQTTController::callback(char* topic, byte* payload, unsigned int length){
     Serial.print("Message arrived [");
     Serial.print(topic);
@@ -58,3 +66,4 @@ void MQTTController::callback(char* topic, byte* payload, unsigned int length){
     }
     Serial.println();
 }
+

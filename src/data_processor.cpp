@@ -35,3 +35,27 @@ void DataProcessor::test(int i, int j){
     serializeJson(doc, buffer);
     _mqtt_controller->publish_test(buffer);
 }
+
+void DataProcessor::send_gps_data(float lat, float lng, float speed){
+    if(!_mqttClient->connected()){
+        return;
+    }
+    StaticJsonDocument<200> doc;
+    doc["lat"] = lat;
+    doc["lng"] = lng;
+    doc["speed"] = speed;
+    char buffer[256];
+    serializeJson(doc, buffer);
+    _mqtt_controller->publish_gps(buffer);
+}
+
+void DataProcessor::send_satellites_data(int satellites){
+    if(!_mqttClient->connected()){
+        return;
+    }
+    StaticJsonDocument<200> doc;
+    doc["satellites"] = satellites;
+    char buffer[256];
+    serializeJson(doc, buffer);
+    _mqtt_controller->publish_satellites(buffer);
+}

@@ -3,14 +3,16 @@
 #include "include/wifi_controller.hpp"
 #include "include/data_processor.hpp"
 #include "include/mqtt_controller.hpp"
+#include "include/gps_controller.hpp"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
-WifiController wifiController("TP-Link_FE1C", "41432457");
+WifiController wifiController("FormulaGades", "g24evo24");
 MQTTController mqttController;
 DataProcessor dataProcessor;
 CANController canController;
+GPSController gpsController(16, 17);
 
 PubSubClient* mqttClient;
 
@@ -51,14 +53,24 @@ void setup() {
     mqttClient = mqttController.get_client();
     dataProcessor.set_mqtt_controller(&mqttController);
     canController.set_data_proccessor(&dataProcessor);
+    gpsController.set_data_processor(&dataProcessor);
 
     //Start CAN Controller
     xTaskCreate(
         CANController::listenTask,
         "CANController",    
-        4096,              
+        8192,              
         &canController,              
         1,                
+        NULL               
+    );
+    //Start GPS Controller
+    xTaskCreate(
+        GPSController::listenTask,
+        "GPSController",    
+        8192,              
+        &gpsController,              
+        2,                
         NULL               
     );
 }

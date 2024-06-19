@@ -29,22 +29,7 @@ public:
         vTaskDelete(NULL); // Optionally delete the task if listen ever returns
     }
 
-    const EngineData getEngineData(){
-        return _engdata;
-    }
-
-    const BattWheelSpeedData getBattWheelSpeedData(){
-        return _batwsdata;
-    }
-
-    const TempGearData getTempGearData(){
-        return _tempgeardata;
-    }
-    
 private:
-    EngineData _engdata;
-    BattWheelSpeedData _batwsdata;
-    TempGearData _tempgeardata;
     twai_message_t _rx_message;
     DataProcessor *_data_processor;
 };

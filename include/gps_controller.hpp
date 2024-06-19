@@ -8,9 +8,11 @@
 
 class GPSController {
 public:
-    GPSController(int rx_pin, int tx_pin);
+    GPSController();
     void listen();
     void set_data_processor(DataProcessor *data_processor);
+    bool gps_data_is_new(float lat, float lng);
+    bool satellites_data_is_new(int satellites);
 
     static void listenTask(void *arg) {
         GPSController *controller = static_cast<GPSController *>(arg);
@@ -20,11 +22,13 @@ public:
 
 private:
     DataProcessor *_data_processor;
-    int _rx_pin;
-    int _tx_pin;
+    int _rx_pin = 16;
+    int _tx_pin = 17;
     HardwareSerial _neogps;
     TinyGPSPlus _gps;
-    bool _new_data = false;
+    float _last_lat = 0.00;
+    float _last_lng = 0.00;
+    int _last_satellites = 0;
 };
 
 #endif

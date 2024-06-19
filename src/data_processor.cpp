@@ -25,6 +25,7 @@ void DataProcessor::set_mqtt_controller(MQTTController *mqtt_controller){
 }
 
 void DataProcessor::test(int i, int j){
+    xSemaphoreTake(_mqtt_mutex, portMAX_DELAY);
     if(!_mqttClient->connected()){
         return;
     }
@@ -34,9 +35,12 @@ void DataProcessor::test(int i, int j){
     char buffer[256];
     serializeJson(doc, buffer);
     _mqtt_controller->publish_test(buffer);
+    delay(40);
+    xSemaphoreGive(_mqtt_mutex);
 }
 
 void DataProcessor::send_gps_data(float lat, float lng, float speed){
+    xSemaphoreTake(_mqtt_mutex, portMAX_DELAY);
     if(!_mqttClient->connected()){
         return;
     }
@@ -47,9 +51,11 @@ void DataProcessor::send_gps_data(float lat, float lng, float speed){
     char buffer[256];
     serializeJson(doc, buffer);
     _mqtt_controller->publish_gps(buffer);
+    xSemaphoreGive(_mqtt_mutex);
 }
 
 void DataProcessor::send_satellites_data(int satellites){
+    xSemaphoreTake(_mqtt_mutex, portMAX_DELAY);
     if(!_mqttClient->connected()){
         return;
     }
@@ -58,4 +64,38 @@ void DataProcessor::send_satellites_data(int satellites){
     char buffer[256];
     serializeJson(doc, buffer);
     _mqtt_controller->publish_satellites(buffer);
+    xSemaphoreGive(_mqtt_mutex);
+}
+
+void DataProcessor::send_frame1(int rpmHigh, int rpmLow, int tpsHigh, int tpsLow, int maphigh, int maplow, int d4){
+    xSemaphoreTake(_mqtt_mutex, portMAX_DELAY);
+    if(!_mqttClient->connected()){
+        return;
+    }
+    StaticJsonDocument<200> doc;
+    doc["rpm"] = rpmHigh * 256 + rpmLow;
+    doc["tps"] = (tpsHigh * 256 + tpsLow);
+    doc["map"] = (maphigh * 256 + maplow);
+    doc["d4"] = d4;
+    char buffer[256];
+    serializeJson(doc, buffer);
+    // _mqtt_controller->publish_frame1(buffer);
+    xSemaphoreGive(_mqtt_mutex);
+}
+
+void DataProcessor::send_frame2(int d1, int d2, int d3, int lambdatargethigh, int lambdatargetlow, int lambdahigh, int lambdalow){
+    xSemaphoreTake(_mqtt_mutex, portMAX_DELAY);
+    if(!_mqttClient->connected()){
+        return;
+    }
+    StaticJsonDocument<200> doc;
+    doc["d1"] = d1;
+    doc["d2"] = d2;
+    doc["d3"] = d3;
+    doc["lambdatarget"] = (lambdatargethigh * 256 + lambdatargetlow);
+    doc["lambda"] = (lambdahigh * 256 + lambdalow) / 1000;
+    char buffer[256];
+    serializeJson(doc, buffer);
+    // _mqtt_controller->publish_frame2(buffer);
+    xSemaphoreGive(_mqtt_mutex);
 }

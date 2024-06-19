@@ -6,27 +6,34 @@
 
 #include "../include/gps_controller.hpp"
 
-GPSController::GPSController(int rx_pin, int tx_pin): _rx_pin(rx_pin), _tx_pin(tx_pin), _neogps(1) {
-    _neogps.begin(9600, SERIAL_8N1, rx_pin, tx_pin);
+GPSController::GPSController(): _neogps(1) {
+    _neogps.begin(38400, SERIAL_8N1, _rx_pin, _tx_pin);
 }
 
-void GPSController::listen() {
-    while(true){
-        bool newData = false;
-        while (_neogps.available()){
-            if (_gps.encode(_neogps.read())){
-                newData = true;         
-            }
-        }
+bool GPSController::gps_data_is_new(float lat, float lng){
+    return lat != _last_lat || lng != _last_lng;
+}
 
-        if(newData == true){
-            newData = false;
-            _data_processor->send_gps_data(_gps.location.lat(), _gps.location.lng(), _gps.speed.kmph());
+bool GPSController::satellites_data_is_new(int satellites){
+    return satellites != _last_satellites;
+}
+
+void GPSController::listen(){
+    while(true){
+        while (_neogps.available()){
+            _gps.encode(_neogps.read());
         }
-        _data_processor->send_satellites_data(_gps.satellites.value());
-        delay(100);
+        if(gps_data_is_new(_gps.location.lat(), _gps.location.lng())){
+            _data_processor->send_gps_data(_gps.location.lat(), _gps.location.lng(), _gps.speed.kmph());
+            _last_lat = _gps.location.lat();
+            _last_lng = _gps.location.lng();
+        }
+        if(satellites_data_is_new(_gps.satellites.value())){
+            _last_satellites = _gps.satellites.value();
+            _data_processor->send_satellites_data(_gps.satellites.value());
+        }
+        vTaskDelay(pdMS_TO_TICKS(10));
     }  
-    
 }
 
 void GPSController::set_data_processor(DataProcessor *data_processor) {

@@ -60,14 +60,15 @@ void CANController::listen(){
             Serial.println(_rx_message.data[4]);
             switch(_rx_message.data[0]){
                 case 1:
-                    _engdata.setframe1(_rx_message.data[1], _rx_message.data[2], _rx_message.data[3], _rx_message.data[4], _rx_message.data[5], _rx_message.data[6], _rx_message.data[7]);
+                    _data_processor->send_frame1(_rx_message.data[1], _rx_message.data[2], _rx_message.data[3], _rx_message.data[4], _rx_message.data[5], _rx_message.data[6], _rx_message.data[7]);
                     break;
                 case 2:
-                    _engdata.setframe2(_rx_message.data[1], _rx_message.data[2], _rx_message.data[3], _rx_message.data[4], _rx_message.data[5], _rx_message.data[6], _rx_message.data[7]);
+                    _data_processor->send_frame1(_rx_message.data[1], _rx_message.data[2], _rx_message.data[3], _rx_message.data[4], _rx_message.data[5], _rx_message.data[6], _rx_message.data[7]);
                     break;
                 default:
                     break;
             }
         }
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
 }

@@ -1,8 +1,8 @@
 #ifndef CANCONTROLLER_HPP
 #define CANCONTROLLER_HPP
 
-#define RX_PIN 5
-#define TX_PIN 4
+#define RX_PIN 16
+#define TX_PIN 17
 #define POLLING_RATE_MS 10
 #define TRANSMIT_RATE_MS 10
 
@@ -13,8 +13,9 @@
 
 class CANController {
 public:
-    CANController();
+    CANController() = default;
     ~CANController();
+    void start();
     void listen();
     void send_frame(twai_message_t message);
     twai_message_t createBoolMessage(bool b0, bool b1, bool b2, bool b3, bool b4, bool b5, bool b6, bool b7);

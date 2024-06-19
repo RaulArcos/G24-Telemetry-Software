@@ -16,8 +16,10 @@ public:
     void test(int i, int j);
     void send_gps_data(float lat, float lng, float speed);
     void send_satellites_data(int satellites);
-    void send_frame1(int rpmHigh, int rpmLow, int tpsHigh, int tpsLow, int maphigh, int maplow, int d4);
-    void send_frame2(int d1, int d2, int d3, int lambdatargethigh, int lambdatargetlow, int lambdahigh, int lambdalow);
+    void send_frame_0(int rpmh, int rpml, int tpsh, int tpsl, int brkh, int brkl, int gear);
+    void send_frame_1(int lfws, int rfws, int lrws, int rrws, int maph, int mapl, int ect);
+    void send_frame_2(int lambh, int lambl, int lamth, int lamtl, int bvolth, int bvoltl, int iat);
+
 
 private:
     MQTTController *_mqtt_controller;

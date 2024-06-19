@@ -22,13 +22,13 @@ public:
 
 private:
     DataProcessor *_data_processor;
-    int _rx_pin = 16;
-    int _tx_pin = 17;
+    int _rx_pin = 0; //16
+    int _tx_pin = 1; //17
     HardwareSerial _neogps;
     TinyGPSPlus _gps;
     float _last_lat = 0.00;
     float _last_lng = 0.00;
-    int _last_satellites = 0;
+    int _last_satellites = -1;
 };
 
 #endif

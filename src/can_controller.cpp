@@ -6,7 +6,7 @@
 
 #include "../include/can_controller.hpp"
 
-CANController::CANController(){
+void CANController::start(){
     twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT((gpio_num_t)TX_PIN, (gpio_num_t)RX_PIN, TWAI_MODE_NORMAL);
     twai_timing_config_t t_config = TWAI_TIMING_CONFIG_1MBITS();
     twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
@@ -15,12 +15,16 @@ CANController::CANController(){
     if (install_status != ESP_OK) {
         Serial.println("Failed to install TWAI driver");
         return;
+    }else{
+        Serial.println("TWAI driver installed");
     }
 
     esp_err_t start_status = twai_start();
     if (start_status != ESP_OK) {
         Serial.println("Failed to start TWAI driver");
         return;
+    }else{
+        Serial.println("TWAI driver started");
     }
 }
 
@@ -45,25 +49,23 @@ twai_message_t CANController::createBoolMessage(bool b0, bool b1, bool b2, bool 
 }
 
 void CANController::listen(){
-    int i = 0,j = 0;
     while(true){
-        i++;
-        j++;
-        if (i >= 12500) {
-            i = 0;
-        }
-        if (j >= 100) {
-            j = 0;
-        }
-        _data_processor->test(i, j);
         if(twai_receive(&_rx_message, pdMS_TO_TICKS(POLLING_RATE_MS)) == ESP_OK){
-            Serial.println(_rx_message.data[4]);
+            Serial.print("Message received: ");
+            Serial.print(_rx_message.identifier, HEX);
+            Serial.print(" ");
+            Serial.print(_rx_message.data[0], HEX);
+            Serial.print(" ");
+            Serial.print(_rx_message.data[1], HEX);
             switch(_rx_message.data[0]){
+                case 0:
+                    _data_processor->send_frame_0(_rx_message.data[1], _rx_message.data[2], _rx_message.data[3], _rx_message.data[4], _rx_message.data[5], _rx_message.data[6], _rx_message.data[7]);
+                    break;
                 case 1:
-                    _data_processor->send_frame1(_rx_message.data[1], _rx_message.data[2], _rx_message.data[3], _rx_message.data[4], _rx_message.data[5], _rx_message.data[6], _rx_message.data[7]);
+                    _data_processor->send_frame_1(_rx_message.data[1], _rx_message.data[2], _rx_message.data[3], _rx_message.data[4], _rx_message.data[5], _rx_message.data[6], _rx_message.data[7]);
                     break;
                 case 2:
-                    _data_processor->send_frame1(_rx_message.data[1], _rx_message.data[2], _rx_message.data[3], _rx_message.data[4], _rx_message.data[5], _rx_message.data[6], _rx_message.data[7]);
+                    _data_processor->send_frame_2(_rx_message.data[1], _rx_message.data[2], _rx_message.data[3], _rx_message.data[4], _rx_message.data[5], _rx_message.data[6], _rx_message.data[7]);
                     break;
                 default:
                     break;

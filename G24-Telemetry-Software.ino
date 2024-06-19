@@ -8,7 +8,7 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
-WifiController wifiController("TP-Link_FE1C", "41432457");
+WifiController wifiController("FormulaGades", "g24evo24");
 MQTTController mqttController;
 DataProcessor dataProcessor;
 CANController canController;
@@ -37,6 +37,8 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length){
 void setup() {
     Serial.begin(115200);
     Serial.println("G24::WifiController - Attempting Wifi Conection...");
+
+    canController.start();
     
     //Connect to WiFi
     if(wifiController.connect()){

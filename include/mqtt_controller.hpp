@@ -15,11 +15,17 @@ public:
     void publish_gps(const char* message);
     void publish_satellites(const char* message);
     void publish_test(const char* message);
+    void publish_can_frame_0(const char* message);
+    void publish_can_frame_1(const char* message);
+    void publish_can_frame_2(const char* message);
     PubSubClient* get_client();
 
     const char* test_topic = "G24/telemetry/test";
     const char* gps_topic = "G24/telemetry/gps";
     const char* satellites_topic = "G24/telemetry/gps/satelites";
+    const char* can_frame_0_topic = "G24/telemetry/can/frame_0";
+    const char* can_frame_1_topic = "G24/telemetry/can/frame_1";
+    const char* can_frame_2_topic = "G24/telemetry/can/frame_2";
 
 private:
     const char* _mqtt_server = "broker.hivemq.com";

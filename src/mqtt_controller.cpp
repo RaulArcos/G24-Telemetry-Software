@@ -57,6 +57,18 @@ void MQTTController::publish_satellites(const char* message){
     _client.publish(satellites_topic, message);
 }
 
+void MQTTController::publish_can_frame_0(const char* message){
+    _client.publish(can_frame_0_topic, message);
+}
+
+void MQTTController::publish_can_frame_1(const char* message){
+    _client.publish(can_frame_1_topic, message);
+}
+
+void MQTTController::publish_can_frame_2(const char* message){
+    _client.publish(can_frame_2_topic, message);
+}
+
 void MQTTController::callback(char* topic, byte* payload, unsigned int length){
     Serial.print("Message arrived [");
     Serial.print(topic);

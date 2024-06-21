@@ -1,8 +1,8 @@
 #ifndef CANCONTROLLER_HPP
 #define CANCONTROLLER_HPP
 
-#define RX_PIN 16
-#define TX_PIN 17
+#define RX_PIN 4
+#define TX_PIN 2
 #define POLLING_RATE_MS 10
 #define TRANSMIT_RATE_MS 10
 

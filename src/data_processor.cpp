@@ -77,6 +77,7 @@ void DataProcessor::send_frame_0(int rpmh, int rpml, int tpsh, int tpsl, int brk
     doc["tps"] = (tpsh * 256) + tpsl;
     doc["brk"] = (brkh * 256) + brkl;
     doc["gear"] = gear;
+
     char buffer[256];
     serializeJson(doc, buffer);
     _mqtt_controller->publish_can_frame_0(buffer);

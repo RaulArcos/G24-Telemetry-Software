@@ -49,7 +49,19 @@ twai_message_t CANController::createBoolMessage(bool b0, bool b1, bool b2, bool 
 }
 
 void CANController::listen(){
+    int i =0, j=0;
     while(true){
+        if(i < 256){
+            i++;
+        }else{
+            i = 0;
+        }
+        if(j < 3){
+            j++;
+        }else{
+            j = 0;
+        }
+        _data_processor->send_frame_0(i, j, 0, 0, 0, 0, 0);
         if(twai_receive(&_rx_message, pdMS_TO_TICKS(POLLING_RATE_MS)) == ESP_OK){
             switch(_rx_message.data[0]){
                 case 0:

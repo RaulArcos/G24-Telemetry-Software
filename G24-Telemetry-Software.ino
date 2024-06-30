@@ -1,5 +1,5 @@
 #include "include/can_controller.hpp"
-#include "include/lte_controller.hpp"
+#include "include/gsm_controller.hpp"
 #include "include/wifi_controller.hpp"
 #include "include/data_processor.hpp"
 #include "include/mqtt_controller.hpp"
@@ -8,11 +8,13 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
-WifiController wifiController("FormulaGades", "g24evo24");
-MQTTController mqttController;
+// WifiController wifiController("FormulaGades", "g24evo24");
 DataProcessor dataProcessor;
 CANController canController;
 GPSController gpsController;
+GSMController gsmController;
+
+MQTTController mqttController(gsmController.get_client());
 
 PubSubClient* mqttClient;
 
@@ -36,16 +38,10 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length){
 
 void setup() {
     Serial.begin(115200);
-    Serial.println("G24::WifiController - Attempting Wifi Conection...");
-
-    canController.start();
+    Serial.println("G24::GMSController - Attempting LTE Conection...");
     
-    //Connect to WiFi
-    if(wifiController.connect()){
-      Serial.println("G24::WifiController - Connected to WiFi!");
-    }else{
-      Serial.println("G24::WifiController - Failed to connect to WiFi! Timeout!");
-    }
+    gsmController.begin();
+    canController.start();
 
     //Connect to MQTT
     mqttController.set_callback(mqtt_callback);
@@ -77,11 +73,13 @@ void setup() {
     );
 }
 
-void loop(){  
+void loop(){ 
   if (!mqttClient->connected()) {
       mqttController.connect();
   }
+  gsmController.check_connection();
   mqttClient->loop();
-  // mqttController.publish_status(mqttController.toString(tpvTimer.get_status()), mqttController.toString(tpvTimer.get_mode()));
+  mqttController.publish_status("connected");
+  // gsmController.print_network_info();
   delay(10);
 }

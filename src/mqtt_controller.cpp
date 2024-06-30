@@ -8,7 +8,8 @@
 #include <ArduinoJson.h>
 
 
-MQTTController::MQTTController() {
+MQTTController::MQTTController(TinyGsmClient *client): _modem_client(client) {
+    _client.setClient(*_modem_client);
     _client.setServer(_mqtt_server, _mqtt_port);
 }
 
@@ -43,6 +44,10 @@ PubSubClient* MQTTController::get_client() {
 
 void MQTTController::publish_telemetry(const char* topic, const char* message){
     _client.publish(topic, message);
+}
+
+void MQTTController::publish_status(const char* message){
+    _client.publish(status_topic, message);
 }
 
 void MQTTController::publish_test(const char* message){

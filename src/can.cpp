@@ -1,12 +1,12 @@
 /**
- * @file can_controller.cpp
+ * @file can.cpp
  * @author Raúl Arcos Herrera
  * @brief This file contains the implementation of the CAN Controller class for Link G4+ ECU.
  */
 
-#include "../include/can_controller.hpp"
+#include "../include/can.hpp"
 
-void CANController::start(){
+void CAN::start(){
     twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT((gpio_num_t)TX_PIN, (gpio_num_t)RX_PIN, TWAI_MODE_NORMAL);
     twai_timing_config_t t_config = TWAI_TIMING_CONFIG_1MBITS();
     twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
@@ -28,16 +28,16 @@ void CANController::start(){
     }
 }
 
-CANController::~CANController(){
+CAN::~CAN(){
     twai_stop();
     twai_driver_uninstall();
 }
 
-void CANController::send_frame(twai_message_t message){
+void CAN::send_frame(twai_message_t message){
     twai_transmit(&message, pdMS_TO_TICKS(TRANSMIT_RATE_MS));
 }
 
-twai_message_t CANController::createBoolMessage(bool b0, bool b1, bool b2, bool b3, bool b4, bool b5, bool b6, bool b7){
+twai_message_t CAN::createBoolMessage(bool b0, bool b1, bool b2, bool b3, bool b4, bool b5, bool b6, bool b7){
     twai_message_t message;
     memset(&message, 0, sizeof(message)); 
     message.identifier = 0x001;
@@ -48,7 +48,7 @@ twai_message_t CANController::createBoolMessage(bool b0, bool b1, bool b2, bool 
     return message;
 }
 
-void CANController::listen(){
+void CAN::listen(){
     int i =0, j=0;
     while(true){
         if(i < 256){

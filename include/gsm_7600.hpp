@@ -26,9 +26,9 @@
 #define MODEM_FLIGHT  25
 #define MODEM_STATUS  34
 
-class GSMController {
+class GSM7600 {
 public:
-    GSMController(): _modem(SerialAT), _client(_modem) {};
+    GSM7600(): _modem(SerialAT), _client(_modem) {};
     void begin();
     void modemPowerOn();
     void modemPowerOff();

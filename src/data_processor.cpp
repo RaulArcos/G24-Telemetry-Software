@@ -19,8 +19,8 @@ char* DataProcessor::process(std::vector<float> data){
     return (char*)payload.c_str();
 }
 
-void DataProcessor::set_mqtt_controller(MQTTController *mqtt_controller){
-    _mqtt_controller = mqtt_controller;
+void DataProcessor::set_mqtt_controller(MQTT *mqtt){
+    _mqtt_controller = mqtt;
     _mqttClient = _mqtt_controller->get_client();
 }
 

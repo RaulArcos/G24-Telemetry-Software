@@ -1,24 +1,24 @@
 /**
- * @file gps_controller.cpp
+ * @file ublox_gps.cpp
  * @author Raúl Arcos Herrera
  * @brief This file contains the implementation of the GPS Controller class for NEO-6M GPS Module.
  */
 
-#include "../include/gps_controller.hpp"
+#include "../include/ublox_gps.hpp"
 
-GPSController::GPSController(): _neogps(1) {
+UboxGPS::UboxGPS(): _neogps(1) {
     _neogps.begin(38400, SERIAL_8N1, _rx_pin, _tx_pin);
 }
 
-bool GPSController::gps_data_is_new(float lat, float lng){
+bool UboxGPS::gps_data_is_new(float lat, float lng){
     return lat != _last_lat || lng != _last_lng;
 }
 
-bool GPSController::satellites_data_is_new(int satellites){
+bool UboxGPS::satellites_data_is_new(int satellites){
     return satellites != _last_satellites;
 }
 
-void GPSController::listen(){
+void UboxGPS::listen(){
     while(true){
         while (_neogps.available()){
             _gps.encode(_neogps.read());
@@ -36,6 +36,6 @@ void GPSController::listen(){
     }  
 }
 
-void GPSController::set_data_processor(DataProcessor *data_processor) {
+void UboxGPS::set_data_processor(DataProcessor *data_processor) {
     _data_processor = data_processor;
 }

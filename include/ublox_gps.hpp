@@ -1,21 +1,21 @@
-#ifndef GPS_CONTROLLER_HPP
-#define GPS_CONTROLLER_HPP
+#ifndef UBLOX_GPS_HPP
+#define UBLOX_GPS_HPP
 
 #include "common/common_libraries.hpp"
 #include "data_processor.hpp"
 #include <TinyGPS++.h>
 #include <HardwareSerial.h>
 
-class GPSController {
+class UboxGPS {
 public:
-    GPSController();
+    UboxGPS();
     void listen();
     void set_data_processor(DataProcessor *data_processor);
     bool gps_data_is_new(float lat, float lng);
     bool satellites_data_is_new(int satellites);
 
     static void listenTask(void *arg) {
-        GPSController *controller = static_cast<GPSController *>(arg);
+        UboxGPS *controller = static_cast<UboxGPS *>(arg);
         controller->listen();
         vTaskDelete(NULL); // Optionally delete the task if listen ever returns
     }

@@ -1,7 +1,7 @@
 /**
  * @file wifi_controller.cpp
  * @author Raúl Arcos Herrera
- * @brief This file contains the implementation of the WiFi Controller for G24 Telemetry.
+ * @brief This file contains the implementation of the WifiController Controller for G24 Telemetry.
  */
 
 #include "../include/wifi_controller.hpp"

@@ -3,7 +3,7 @@
 
 #include "common/common_libraries.hpp"
 #include "common/g24_telemetry_data.hpp"
-#include "mqtt_controller.hpp"
+#include "mqtt.hpp"
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/semphr.h>
@@ -12,7 +12,7 @@ class DataProcessor {
 public:
     DataProcessor() = default;
     char* process(std::vector<float> data);
-    void set_mqtt_controller(MQTTController *mqtt_controller);
+    void set_mqtt_controller(MQTT *mqtt);
     void test(int i, int j);
     void send_gps_data(float lat, float lng, float speed);
     void send_satellites_data(int satellites);
@@ -22,7 +22,7 @@ public:
 
 
 private:
-    MQTTController *_mqtt_controller;
+    MQTT *_mqtt_controller;
     PubSubClient * _mqttClient;
     SemaphoreHandle_t _mqtt_mutex = xSemaphoreCreateMutex();
 };

@@ -1,5 +1,5 @@
-#ifndef CANCONTROLLER_HPP
-#define CANCONTROLLER_HPP
+#ifndef CAN_HPP
+#define CAN_HPP
 
 #define RX_PIN 4
 #define TX_PIN 2
@@ -11,10 +11,10 @@
 #include "data_processor.hpp"
 #include "common/g24_telemetry_data.hpp"
 
-class CANController {
+class CAN{
 public:
-    CANController() = default;
-    ~CANController();
+    CAN() = default;
+    ~CAN();
     void start();
     void listen();
     void send_frame(twai_message_t message);
@@ -25,7 +25,7 @@ public:
     }
 
     static void listenTask(void *arg) {
-        CANController *controller = static_cast<CANController *>(arg);
+        CAN *controller = static_cast<CAN*>(arg);
         controller->listen();
         vTaskDelete(NULL); // Optionally delete the task if listen ever returns
     }

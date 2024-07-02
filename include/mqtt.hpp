@@ -3,11 +3,11 @@
 
 #include "common/common_libraries.hpp"
 #include <PubSubClient.h>
-#include "gsm_controller.hpp"
+#include "gsm_7600.hpp"
 
-class MQTTController {
+class MQTT {
 public:
-    MQTTController(TinyGsmClient *client);
+    MQTT(TinyGsmClient *client);
     void connect();
     static void callback(char* topic, byte* payload, unsigned int length);
     void set_callback(std::function<void(char*, byte*, unsigned int)> func);

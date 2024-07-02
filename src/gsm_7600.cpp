@@ -1,13 +1,13 @@
 /**
- * @file gsm_controller.cpp
+ * @file gsm7600.cpp
  * @author Raúl Arcos Herrera
  * @brief This file contains the implementation of the LTE Controller for G24 Telemetry.
  */
 
-#include "../include/gsm_controller.hpp"
+#include "../include/gsm_7600.hpp"
 #include <string>
 
-void GSMController::begin() {
+void GSM7600::begin() {
     delay(10);
     modemPowerOn();
 
@@ -59,7 +59,7 @@ void GSMController::begin() {
     }
 }
 
-void GSMController::check_connection() {
+void GSM7600::check_connection() {
     if (!_modem.isNetworkConnected()) {
         Serial.println("Network disconnected");
         if (!_modem.waitForNetwork(180000L, true)) {
@@ -87,7 +87,7 @@ void GSMController::check_connection() {
     }
 }
 
-void GSMController::print_network_info() {
+void GSM7600::print_network_info() {
     // Print signal quality
     int csq = _modem.getSignalQuality();
     Serial.print("Signal quality: ");
@@ -101,7 +101,7 @@ void GSMController::print_network_info() {
     // Additional information about the network can be printed here if needed
 }
 
-String GSMController::get_network_type() {
+String GSM7600::get_network_type() {
     // Send AT command to query network registration status
     SerialAT.println("AT+COPS?");
     delay(100);
@@ -140,21 +140,21 @@ String GSMController::get_network_type() {
     return "Unknown";
 }
 
-void GSMController::modemPowerOn(){
+void GSM7600::modemPowerOn(){
   pinMode(MODEM_PWRKEY, OUTPUT);
   digitalWrite(MODEM_PWRKEY, LOW);
   delay(1000);
   digitalWrite(MODEM_PWRKEY, HIGH);
 }
 
-void GSMController::modemPowerOff(){
+void GSM7600::modemPowerOff(){
   pinMode(MODEM_PWRKEY, OUTPUT);
   digitalWrite(MODEM_PWRKEY, LOW);
   delay(1500);
   digitalWrite(MODEM_PWRKEY, HIGH);
 }
 
-void GSMController::modemReset(){
+void GSM7600::modemReset(){
   modemPowerOn();
   delay(1000);
   modemPowerOff();

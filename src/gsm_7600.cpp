@@ -1,93 +1,88 @@
 /**
- * @file gsm7600.cpp
+ * @file gsm_7600.cpp
  * @author Raúl Arcos Herrera
- * @brief This file contains the implementation of the LTE Controller for G24 Telemetry.
+ * @brief This file contains the implementation of the GSM7600 class.
  */
 
 #include "../include/gsm_7600.hpp"
-#include <string>
+
+
+GSM7600::GSM7600() : _modem(Serial1), _client(_modem), _connected(false) {}
 
 void GSM7600::begin() {
-    delay(10);
-    modemPowerOn();
+    Serial1.begin(UART_BAUD, SERIAL_8N1, MODEM_RX, MODEM_TX);
+    Serial.println("Powering on the modem...");
 
+    pinMode(MODEM_PWRKEY, OUTPUT);
     pinMode(MODEM_FLIGHT, OUTPUT);
     digitalWrite(MODEM_FLIGHT, HIGH);
 
-    if (!_modem.init()) {
+    modemPowerOn();
+    delay(1000);
+
+    Serial.println("Initializing modem...");
+    while(!_modem.init()){
         Serial.println("Failed to initialize modem");
-        return;
-    }
-
-    String ret;
-    ret = _modem.setNetworkMode(2);
-    Serial.println("setNetworkMode:" + ret);
-
-    String name = _modem.getModemName();
-    Serial.println("Modem Name:" + name);
-
-    String modemInfo = _modem.getModemInfo();
-    Serial.println("Modem Info:" + modemInfo);
-
-    if (GSM_PIN && _modem.getSimStatus() != 3) {
-        _modem.simUnlock(GSM_PIN);
+        delay(10000);
+        if(!_modem.init()){
+            modemReset();
+        }
     }
     
-    Serial.print("Waiting for network...");
+    print_modem_info();
+    connect();
+}
+
+void GSM7600::end() {
+    modemPowerOff();
+}
+
+void GSM7600::connect() {
+    Serial.print("Setting network mode to LTE...");
+    SerialAT.println("AT+CNMP=38");  // Set to LTE only
+    delay(1000);
+    String response = "";
+    unsigned long startMillis = millis();
+    while (millis() - startMillis < 5000) { // Wait up to 5 seconds for a response
+        if (SerialAT.available()) {
+            response += SerialAT.readStringUntil('\n');
+        }
+    }
+    Serial.print("AT+CNMP=38 response: ");
+    Serial.println(response);
+
+    Serial.print("Connecting to network...");
     if (!_modem.waitForNetwork()) {
         Serial.println(" fail");
-        delay(10000);
         return;
     }
     Serial.println(" success");
-
-    if (_modem.isNetworkConnected()) {
-        Serial.println("Network connected");
-    }
-
-    Serial.print(F("Connecting to "));
-    Serial.print(_apn);
-    if (!_modem.gprsConnect(_apn, _gprsUser, _gprsPass)) {
+    if (!_modem.gprsConnect(_apn, "", "")) {
         Serial.println(" fail");
-        delay(10000);
         return;
     }
-    Serial.println(" success");
-
-    if (_modem.isGprsConnected()) {
-        Serial.println("GPRS connected");
-    }
+    Serial.println("GPRS connected");
 }
 
-void GSM7600::check_connection() {
-    if (!_modem.isNetworkConnected()) {
-        Serial.println("Network disconnected");
-        if (!_modem.waitForNetwork(180000L, true)) {
-            Serial.println(" fail");
-            delay(10000);
-            return;
-        }
-        if (_modem.isNetworkConnected()) {
-            Serial.println("Network re-connected");
-        }
-        // and make sure GPRS/EPS is still connected
-        if (!_modem.isGprsConnected()) {
-            Serial.println("GPRS disconnected!");
-            Serial.print(F("Connecting to "));
-            Serial.print(_apn);
-            if (!_modem.gprsConnect(_apn, _gprsUser, _gprsPass)) {
-                Serial.println(" fail");
-                delay(10000);
-                return;
-            }
-            if (_modem.isGprsConnected()) {
-                Serial.println("GPRS reconnected");
-            }
-        }
-    }
+void GSM7600::disconnect() {
+    _modem.gprsDisconnect();
+    _connected = false;
 }
 
-void GSM7600::print_network_info() {
+bool GSM7600::is_connected() {
+    return _modem.isNetworkConnected() && _modem.isGprsConnected();
+}
+
+int GSM7600::get_signal_strength() {
+    return _modem.getSignalQuality();
+}
+
+void GSM7600::print_modem_info() {
+    // Print modem info
+    String modemInfo = _modem.getModemInfo();
+    Serial.print("Modem: ");
+    Serial.println(modemInfo);
+
     // Print signal quality
     int csq = _modem.getSignalQuality();
     Serial.print("Signal quality: ");
@@ -103,36 +98,49 @@ void GSM7600::print_network_info() {
 
 String GSM7600::get_network_type() {
     // Send AT command to query network registration status
-    SerialAT.println("AT+COPS?");
+    SerialAT.println("AT+CNMP?");
     delay(100);
-    
+
     String response = "";
-    while (SerialAT.available()) {
-        response += SerialAT.readStringUntil('\n');
+    unsigned long startMillis = millis();
+    while (millis() - startMillis < 5000) { // Wait up to 5 seconds for a response
+        if (SerialAT.available()) {
+            response += SerialAT.readStringUntil('\n');
+        }
     }
 
-    Serial.print("AT+COPS? response: ");
+    Serial.print("AT+CNMP? response: ");
     Serial.println(response);
 
-    int idx = response.indexOf("+COPS:");
+    int idx = response.indexOf("+CNMP:");
     if (idx != -1) {
         // Extract the relevant part of the response
         response = response.substring(idx);
         Serial.print("Extracted response: ");
         Serial.println(response);
 
-        int commaIdx = response.lastIndexOf(',');
-        if (commaIdx != -1 && commaIdx + 1 < response.length()) {
-            int type = response.charAt(commaIdx + 1) - '0';
-            switch (type) {
-                case 0: return "GSM";
-                case 1: return "GSM Compact";
-                case 2: return "UTRAN";
-                case 3: return "GSM w/EGPRS";
-                case 4: return "UTRAN w/HSDPA";
-                case 5: return "UTRAN w/HSUPA";
-                case 6: return "UTRAN w/HSDPA and HSUPA";
-                case 7: return "E-UTRAN";
+        int networkMode = -1;
+        // Example response: +CNMP: 2
+        int numFields = sscanf(response.c_str(), "+CNMP: %d", &networkMode);
+
+        if (numFields == 1) {
+            switch (networkMode) {
+                case 2: return "Automatic";
+                case 13: return "GSM Only";
+                case 14: return "WCDMA Only";
+                case 38: return "LTE Only";
+                case 59: return "TDS-CDMA Only";
+                case 9: return "CDMA Only";
+                case 10: return "EVDO Only";
+                case 19: return "GSM+WCDMA";
+                case 22: return "CDMA+EVDO";
+                case 48: return "Any but LTE";
+                case 60: return "GSM+TDSCDMA";
+                case 63: return "GSM+WCDMA+TDSCDMA";
+                case 67: return "CDMA+EVDO+GSM+WCDMA+TDSCDMA";
+                case 39: return "GSM+WCDMA+LTE";
+                case 51: return "GSM+LTE";
+                case 54: return "WCDMA+LTE";
                 default: return "Unknown";
             }
         }
@@ -140,11 +148,31 @@ String GSM7600::get_network_type() {
     return "Unknown";
 }
 
+bool GSM7600::check_connection() {
+    if (!is_network_connected()) {
+        Serial.println("Network disconnected, attempting to reconnect...");
+        if (!_modem.waitForNetwork()) {
+            Serial.println("Failed to reconnect to the network");
+            return false;
+        }
+        Serial.println("Network reconnected");
+    }
+
+    if (!is_gprs_connected()) {
+        Serial.println("GPRS disconnected, attempting to reconnect...");
+        if (!_modem.gprsConnect(_apn, "", "")) {
+            Serial.println("Failed to reconnect to GPRS");
+            return false;
+        }
+        Serial.println("GPRS reconnected");
+    }
+    return true;
+}
+
 void GSM7600::modemPowerOn(){
-  pinMode(MODEM_PWRKEY, OUTPUT);
-  digitalWrite(MODEM_PWRKEY, LOW);
-  delay(1000);
   digitalWrite(MODEM_PWRKEY, HIGH);
+  delay(300);
+  digitalWrite(MODEM_PWRKEY, LOW);
 }
 
 void GSM7600::modemPowerOff(){
@@ -160,4 +188,10 @@ void GSM7600::modemReset(){
   modemPowerOff();
 }
 
+bool GSM7600::is_network_connected() {
+    return _modem.isNetworkConnected();
+}
 
+bool GSM7600::is_gprs_connected() {
+    return _modem.isGprsConnected();
+}

@@ -62,6 +62,7 @@ void CAN::listen(){
             j = 0;
         }
         _data_processor->send_frame_0(i, j, 0, 0, 0, 0, 0);
+        Serial.println("Sending frame 0");
         if(twai_receive(&_rx_message, pdMS_TO_TICKS(POLLING_RATE_MS)) == ESP_OK){
             switch(_rx_message.data[0]){
                 case 0:

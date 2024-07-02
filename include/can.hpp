@@ -1,7 +1,7 @@
 #ifndef CAN_HPP
 #define CAN_HPP
 
-#define RX_PIN 4
+#define RX_PIN 5
 #define TX_PIN 2
 #define POLLING_RATE_MS 10
 #define TRANSMIT_RATE_MS 10

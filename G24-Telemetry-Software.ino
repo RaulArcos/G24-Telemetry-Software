@@ -41,6 +41,10 @@ void setup() {
     Serial.println("G24::GMSController - Attempting LTE Conection...");
     
     gsm7600.begin();
+    if (!gsm7600.is_connected()) {
+        Serial.println("Failed to connect to the network");
+        return;
+    }
     canController.start();
 
     //Connect to MQTT
@@ -49,37 +53,41 @@ void setup() {
     Serial.println("G24::MQTT - Connected to MQTT!");
 
     mqttClient = mqtt.get_client();
+    mqtt.set_mutex(dataProcessor.get_mutex());
     dataProcessor.set_mqtt_controller(&mqtt);
     canController.set_data_proccessor(&dataProcessor);
     ubloxGPS.set_data_processor(&dataProcessor);
 
     //Start CAN Controller
-    xTaskCreate(
-        CAN::listenTask,
-        "CANController",    
-        8192,              
-        &canController,              
-        1,                
-        NULL               
-    );
-    //Start GPS Controller
-    xTaskCreate(
-        UboxGPS::listenTask,
-        "UboxGPS",    
-        8192,              
-        &ubloxGPS,              
-        2,                
-        NULL               
-    );
+    // xTaskCreate(
+    //     CAN::listenTask,
+    //     "CANController",    
+    //     8192,              
+    //     &canController,              
+    //     1,                
+    //     NULL               
+    // );
+    // //Start GPS Controller
+    // xTaskCreate(
+    //     UboxGPS::listenTask,
+    //     "UboxGPS",    
+    //     8192,              
+    //     &ubloxGPS,              
+    //     2,                
+    //     NULL               
+    // );
 }
 
 void loop(){ 
-  if (!mqttClient->connected()) {
-      mqtt.connect();
-  }
-  gsm7600.check_connection();
-  mqttClient->loop();
-  mqtt.publish_status("connected");
-  // gsm7600.print_network_info();
-  delay(10);
+    if (!gsm7600.check_connection()) {
+        Serial.println("GSM connection failed, attempting to reconnect...");
+        delay(5000); // Add a delay before attempting to reconnect
+        gsm7600.connect();
+    }
+
+    if (!mqttClient->connected()) {
+        mqtt.connect();
+    }
+    mqtt.loop();
+    delay(10);    
 }

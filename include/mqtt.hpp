@@ -5,6 +5,9 @@
 #include <PubSubClient.h>
 #include "gsm_7600.hpp"
 
+#include <freertos/FreeRTOS.h>
+#include <freertos/semphr.h>
+
 class MQTT {
 public:
     MQTT(TinyGsmClient *client);
@@ -21,6 +24,8 @@ public:
     void publish_can_frame_2(const char* message);
     PubSubClient* get_client();
     void set_modem_client(TinyGsmClient* client) { _modem_client = client; _client.setClient(*client); }
+    void loop();
+    void set_mutex(SemaphoreHandle_t mutex) { _mqtt_mutex = mutex; }
 
     const char* test_topic = "G24/telemetry/test";
     const char* status_topic = "G24/telemetry/status";
@@ -35,6 +40,7 @@ private:
     const int _mqtt_port = 1883;
     TinyGsmClient* _modem_client;
     PubSubClient _client;
+    SemaphoreHandle_t _mqtt_mutex;
 };
 
 #endif

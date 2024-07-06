@@ -19,7 +19,8 @@ bool UboxGPS::satellites_data_is_new(int satellites){
 }
 
 void UboxGPS::listen(){
-    while(true){
+    while(true){    
+        Serial.println("Listening GPS");
         while (_neogps.available()){
             _gps.encode(_neogps.read());
         }
@@ -33,7 +34,7 @@ void UboxGPS::listen(){
             _data_processor->send_satellites_data(_gps.satellites.value());
         }
         vTaskDelay(pdMS_TO_TICKS(10));
-    }  
+    }   
 }
 
 void UboxGPS::set_data_processor(DataProcessor *data_processor) {

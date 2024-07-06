@@ -85,7 +85,9 @@ void MQTT::callback(char* topic, byte* payload, unsigned int length){
 }
 
 void MQTT::loop(){
-    xSemaphoreTake(_mqtt_mutex, portMAX_DELAY);
+    if(!xSemaphoreTake(_mqtt_mutex, portMAX_DELAY)){
+        return;
+    }
     _client.loop();
     xSemaphoreGive(_mqtt_mutex);
 }

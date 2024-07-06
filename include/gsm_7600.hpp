@@ -10,6 +10,8 @@
 #define TINY_GSM_USE_GPRS true
 
 #include <TinyGsmClient.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/semphr.h>
 
 class GSM7600 {
 public:
@@ -24,6 +26,7 @@ public:
     bool check_connection();
     int get_signal_strength();
     TinyGsmClient* get_client() { return &_client;}
+    void set_mutex(SemaphoreHandle_t mutex) { _mutex = mutex; }
 
 private:
     const char* _apn = "airtelwap.es";
@@ -38,6 +41,7 @@ private:
     void modemPowerOff();
     void modemReset();
     void print_modem_info();
+    SemaphoreHandle_t _mutex;
 };
 
 #endif

@@ -22,6 +22,7 @@ public:
     void publish_can_frame_0(const char* message);
     void publish_can_frame_1(const char* message);
     void publish_can_frame_2(const char* message);
+    void publish(const char* topic, const char* message);
     PubSubClient* get_client();
     void set_modem_client(TinyGsmClient* client) { _modem_client = client; _client.setClient(*client); }
     void loop();

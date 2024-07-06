@@ -38,6 +38,9 @@ void GSM7600::end() {
 }
 
 void GSM7600::connect() {
+    if(!xSemaphoreTake(_mutex, portMAX_DELAY)){
+        return;
+    }
     Serial.print("Setting network mode to LTE...");
     SerialAT.println("AT+CNMP=38");  // Set to LTE only
     delay(1000);
@@ -54,14 +57,17 @@ void GSM7600::connect() {
     Serial.print("Connecting to network...");
     if (!_modem.waitForNetwork()) {
         Serial.println(" fail");
+        xSemaphoreGive(_mutex);
         return;
     }
     Serial.println(" success");
     if (!_modem.gprsConnect(_apn, "", "")) {
         Serial.println(" fail");
+        xSemaphoreGive(_mutex);
         return;
     }
     Serial.println("GPRS connected");
+    xSemaphoreGive(_mutex);
 }
 
 void GSM7600::disconnect() {
@@ -70,7 +76,11 @@ void GSM7600::disconnect() {
 }
 
 bool GSM7600::is_connected() {
+    if(!xSemaphoreTake(_mutex, portMAX_DELAY)){
+        return true;
+    }
     return _modem.isNetworkConnected() && _modem.isGprsConnected();
+    xSemaphoreGive(_mutex);
 }
 
 int GSM7600::get_signal_strength() {
@@ -149,10 +159,15 @@ String GSM7600::get_network_type() {
 }
 
 bool GSM7600::check_connection() {
+    if(!xSemaphoreTake(_mutex, portMAX_DELAY)){
+        return true;
+    }
+    Serial.println("Checking GSM connection...");
     if (!is_network_connected()) {
         Serial.println("Network disconnected, attempting to reconnect...");
         if (!_modem.waitForNetwork()) {
             Serial.println("Failed to reconnect to the network");
+            xSemaphoreGive(_mutex);
             return false;
         }
         Serial.println("Network reconnected");
@@ -162,10 +177,12 @@ bool GSM7600::check_connection() {
         Serial.println("GPRS disconnected, attempting to reconnect...");
         if (!_modem.gprsConnect(_apn, "", "")) {
             Serial.println("Failed to reconnect to GPRS");
+            xSemaphoreGive(_mutex);
             return false;
         }
         Serial.println("GPRS reconnected");
     }
+    xSemaphoreGive(_mutex);
     return true;
 }
 

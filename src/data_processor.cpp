@@ -25,7 +25,7 @@ void DataProcessor::set_mqtt_controller(MQTT *mqtt){
 }
 
 void DataProcessor::test(int i, int j){
-    if(xSemaphoreTake(_mqtt_mutex, portMAX_DELAY)){
+    if(xSemaphoreTake(_mutex, portMAX_DELAY)){
         if(_mqttClient->connected()){
             StaticJsonDocument<200> doc;
             doc["rpm"] = i;
@@ -34,12 +34,12 @@ void DataProcessor::test(int i, int j){
             serializeJson(doc, buffer);
             _mqtt_controller->publish_test(buffer);
         }
-        xSemaphoreGive(_mqtt_mutex);
+        xSemaphoreGive(_mutex);
     }
 }
 
 void DataProcessor::send_gps_data(float lat, float lng, float speed){
-    if(xSemaphoreTake(_mqtt_mutex, portMAX_DELAY)){
+    if(xSemaphoreTake(_mutex, portMAX_DELAY)){
         if(_mqttClient->connected()){
             StaticJsonDocument<200> doc;
             doc["lat"] = lat;
@@ -49,12 +49,12 @@ void DataProcessor::send_gps_data(float lat, float lng, float speed){
             serializeJson(doc, buffer);
             _mqtt_controller->publish_gps(buffer);
         }
-        xSemaphoreGive(_mqtt_mutex);
+        xSemaphoreGive(_mutex);
     }
 }
 
 void DataProcessor::send_satellites_data(int satellites){
-    if(xSemaphoreTake(_mqtt_mutex, portMAX_DELAY)){
+    if(xSemaphoreTake(_mutex, portMAX_DELAY)){
         if(_mqttClient->connected()){
             StaticJsonDocument<200> doc;
             doc["satellites"] = satellites;
@@ -62,14 +62,13 @@ void DataProcessor::send_satellites_data(int satellites){
             serializeJson(doc, buffer);
             _mqtt_controller->publish_satellites(buffer);
         }
-        xSemaphoreGive(_mqtt_mutex);
+        xSemaphoreGive(_mutex);
     }
 }
 
 void DataProcessor::send_frame_0(int rpmh, int rpml, int tpsh, int tpsl, int brkh, int brkl, int gear){
-    if(xSemaphoreTake(_mqtt_mutex, portMAX_DELAY)){
+    if(xSemaphoreTake(_mutex, portMAX_DELAY)){
         if(_mqttClient->connected()){
-            Serial.println("MQTT not connected");
             StaticJsonDocument<200> doc;
             doc["rpm"] = (rpmh * 256) + rpml;
             doc["tps"] = (tpsh * 256) + tpsl;
@@ -80,13 +79,13 @@ void DataProcessor::send_frame_0(int rpmh, int rpml, int tpsh, int tpsl, int brk
             serializeJson(doc, buffer);
             _mqtt_controller->publish_can_frame_0(buffer);  
         }
-        xSemaphoreGive(_mqtt_mutex);
+        xSemaphoreGive(_mutex);
     }
     
 }
 
 void DataProcessor::send_frame_1(int lfws, int rfws, int lrws, int rrws, int maph, int mapl, int ect){
-    if(xSemaphoreTake(_mqtt_mutex, portMAX_DELAY)){
+    if(xSemaphoreTake(_mutex, portMAX_DELAY)){
         if(_mqttClient->connected()){
             StaticJsonDocument<200> doc;
             doc["lfws"] = lfws;
@@ -99,12 +98,12 @@ void DataProcessor::send_frame_1(int lfws, int rfws, int lrws, int rrws, int map
             serializeJson(doc, buffer);
             _mqtt_controller->publish_can_frame_1(buffer);
         }
-        xSemaphoreGive(_mqtt_mutex);
+        xSemaphoreGive(_mutex);
     }
 }
 
 void DataProcessor::send_frame_2(int lambh, int lambl, int lamth, int lamtl, int bvolth, int bvoltl, int iat){
-    if(xSemaphoreTake(_mqtt_mutex, portMAX_DELAY)){
+    if(xSemaphoreTake(_mutex, portMAX_DELAY)){
         if(_mqttClient->connected()){
             StaticJsonDocument<200> doc;
             doc["lamb"] = (lambh * 256) + lambl;
@@ -115,6 +114,6 @@ void DataProcessor::send_frame_2(int lambh, int lambl, int lamth, int lamtl, int
             serializeJson(doc, buffer);
             _mqtt_controller->publish_can_frame_2(buffer);
         }
-        xSemaphoreGive(_mqtt_mutex);
+        xSemaphoreGive(_mutex);
     }
 }

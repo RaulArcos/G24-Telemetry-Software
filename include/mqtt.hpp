@@ -26,7 +26,7 @@ public:
     PubSubClient* get_client();
     void set_modem_client(TinyGsmClient* client) { _modem_client = client; _client.setClient(*client); }
     void loop();
-    void set_mutex(SemaphoreHandle_t mutex) { _mqtt_mutex = mutex; }
+    void set_mutex(SemaphoreHandle_t mutex) { _mutex = mutex; }
 
     const char* test_topic = "G24/telemetry/test";
     const char* status_topic = "G24/telemetry/status";
@@ -41,7 +41,7 @@ private:
     const int _mqtt_port = 1883;
     TinyGsmClient* _modem_client;
     PubSubClient _client;
-    SemaphoreHandle_t _mqtt_mutex;
+    SemaphoreHandle_t _mutex;
 };
 
 #endif

@@ -19,13 +19,13 @@ public:
     void send_frame_0(int rpmh, int rpml, int tpsh, int tpsl, int brkh, int brkl, int gear);
     void send_frame_1(int lfws, int rfws, int lrws, int rrws, int maph, int mapl, int ect);
     void send_frame_2(int lambh, int lambl, int lamth, int lamtl, int bvolth, int bvoltl, int iat);
-    SemaphoreHandle_t get_mutex() { return _mqtt_mutex; }
+    void set_mutex(SemaphoreHandle_t mutex) { _mutex = mutex; }
 
 
 private:
     MQTT *_mqtt_controller;
     PubSubClient * _mqttClient;
-    SemaphoreHandle_t _mqtt_mutex = xSemaphoreCreateMutex();
+    SemaphoreHandle_t _mutex;
 };
 
 #endif

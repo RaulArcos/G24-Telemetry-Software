@@ -18,23 +18,26 @@ void MQTT::set_callback(std::function<void(char*, byte*, unsigned int)> func){
 }
 
 void MQTT::connect() {
-    while (!_client.connected()) {
-        Serial.print("Attempting MQTT connection...");
-        String clientId = "ESP32-";
-        clientId += String(random(0xffff), HEX);
-        
-        if (_client.connect(clientId.c_str())) {
-            Serial.println("Connected");
+    if(xSemaphoreTake(_mutex, portMAX_DELAY)){
+        while (!_client.connected()) {
+            Serial.print("Attempting MQTT connection...");
+            String clientId = "ESP32-";
+            clientId += String(random(0xffff), HEX);
+            
+            if (_client.connect(clientId.c_str())) {
+                Serial.println("Connected");
 
-            // _client.subscribe(mode_topic);
-            // _client.subscribe(start_topic);
-            // _client.subscribe("G24/tpv/test");
-        } else {
-            Serial.print("Failed, rc=");
-            Serial.print(_client.state());
-            Serial.println(" Waiting 1 seconds");
-            delay(1000);
+                // _client.subscribe(mode_topic);
+                // _client.subscribe(start_topic);
+                // _client.subscribe("G24/tpv/test");
+            } else {
+                Serial.print("Failed, rc=");
+                Serial.print(_client.state());
+                Serial.println(" Waiting 1 seconds");
+                delay(1000);
+            }
         }
+        xSemaphoreGive(_mutex);
     }
 }
 
@@ -85,9 +88,9 @@ void MQTT::callback(char* topic, byte* payload, unsigned int length){
 }
 
 void MQTT::loop(){
-    if(!xSemaphoreTake(_mqtt_mutex, portMAX_DELAY)){
-        return;
+    if(xSemaphoreTake(_mutex, portMAX_DELAY)){
+        _client.loop();
+        xSemaphoreGive(_mutex);
     }
-    _client.loop();
-    xSemaphoreGive(_mqtt_mutex);
+    
 }

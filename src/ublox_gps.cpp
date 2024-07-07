@@ -19,22 +19,19 @@ bool UboxGPS::satellites_data_is_new(int satellites){
 }
 
 void UboxGPS::listen(){
-    while(true){    
-        Serial.println("Listening GPS");
-        while (_neogps.available()){
-            _gps.encode(_neogps.read());
-        }
-        if(gps_data_is_new(_gps.location.lat(), _gps.location.lng())){
-            _data_processor->send_gps_data(_gps.location.lat(), _gps.location.lng(), _gps.speed.kmph());
-            _last_lat = _gps.location.lat();
-            _last_lng = _gps.location.lng();
-        }
-        if(satellites_data_is_new(_gps.satellites.value())){
-            _last_satellites = _gps.satellites.value();
-            _data_processor->send_satellites_data(_gps.satellites.value());
-        }
-        vTaskDelay(pdMS_TO_TICKS(10));
-    }   
+    Serial.println("Listening GPS");
+    while (_neogps.available()){
+        _gps.encode(_neogps.read());
+    }
+    if(gps_data_is_new(_gps.location.lat(), _gps.location.lng())){
+        _data_processor->send_gps_data(_gps.location.lat(), _gps.location.lng(), _gps.speed.kmph());
+        _last_lat = _gps.location.lat();
+        _last_lng = _gps.location.lng();
+    }
+    if(satellites_data_is_new(_gps.satellites.value())){
+        _last_satellites = _gps.satellites.value();
+        _data_processor->send_satellites_data(_gps.satellites.value());
+    }
 }
 
 void UboxGPS::set_data_processor(DataProcessor *data_processor) {

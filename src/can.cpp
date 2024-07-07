@@ -49,35 +49,21 @@ twai_message_t CAN::createBoolMessage(bool b0, bool b1, bool b2, bool b3, bool b
 }
 
 void CAN::listen(){
-    int i =0, j=0;
-    while(true){
-        if(i < 256){
-            i++;
-        }else{
-            i = 0;
+    _data_processor->send_frame_0(1, 2, 0, 0, 0, 0, 0);
+    Serial.println("Sending frame 0");
+    if(twai_receive(&_rx_message, pdMS_TO_TICKS(POLLING_RATE_MS)) == ESP_OK){
+        switch(_rx_message.data[0]){
+            case 0:
+                _data_processor->send_frame_0(_rx_message.data[1], _rx_message.data[2], _rx_message.data[3], _rx_message.data[4], _rx_message.data[5], _rx_message.data[6], _rx_message.data[7]);
+                break;
+            case 1:
+                _data_processor->send_frame_1(_rx_message.data[1], _rx_message.data[2], _rx_message.data[3], _rx_message.data[4], _rx_message.data[5], _rx_message.data[6], _rx_message.data[7]);
+                break;
+            case 2:
+                _data_processor->send_frame_2(_rx_message.data[1], _rx_message.data[2], _rx_message.data[3], _rx_message.data[4], _rx_message.data[5], _rx_message.data[6], _rx_message.data[7]);
+                break;
+            default:
+                break;
         }
-        if(j < 3){
-            j++;
-        }else{
-            j = 0;
-        }
-        _data_processor->send_frame_0(i, j, 0, 0, 0, 0, 0);
-        Serial.println("Sending frame 0");
-        if(twai_receive(&_rx_message, pdMS_TO_TICKS(POLLING_RATE_MS)) == ESP_OK){
-            switch(_rx_message.data[0]){
-                case 0:
-                    _data_processor->send_frame_0(_rx_message.data[1], _rx_message.data[2], _rx_message.data[3], _rx_message.data[4], _rx_message.data[5], _rx_message.data[6], _rx_message.data[7]);
-                    break;
-                case 1:
-                    _data_processor->send_frame_1(_rx_message.data[1], _rx_message.data[2], _rx_message.data[3], _rx_message.data[4], _rx_message.data[5], _rx_message.data[6], _rx_message.data[7]);
-                    break;
-                case 2:
-                    _data_processor->send_frame_2(_rx_message.data[1], _rx_message.data[2], _rx_message.data[3], _rx_message.data[4], _rx_message.data[5], _rx_message.data[6], _rx_message.data[7]);
-                    break;
-                default:
-                    break;
-            }
-        }
-        vTaskDelay(pdMS_TO_TICKS(10));
     }
 }

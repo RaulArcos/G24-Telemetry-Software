@@ -7,8 +7,11 @@
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
+#include <freertos/semphr.h>
 
-// WifiController wifiController("FormulaGades", "g24evo24");
+
+SemaphoreHandle_t xMutex = xSemaphoreCreateMutex();
+
 DataProcessor dataProcessor;
 CAN canController;
 UboxGPS ubloxGPS;
@@ -39,15 +42,15 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length){
 void check_connections(void* pvParameters){
     while(true){
         Serial.println("Checking connections...");
-        if (!gsm7600.check_connection()) {
+        if(xSemaphoreTake(xMutex, portMAX_DELAY) == pdTRUE){
+            if (!gsm7600.check_connection()) {
             Serial.println("GSM connection failed, attempting to reconnect...");
             delay(5000); // Add a delay before attempting to reconnect
             gsm7600.connect();
+            }
+            xSemaphoreGive(xMutex);
         }
-        if (!mqttClient->connected()) {
-            mqtt.connect();
-        }
-        vTaskDelay(pdMS_TO_TICKS(500));
+        vTaskDelay(pdMS_TO_TICKS(5000));
     }
 }
 
@@ -55,8 +58,9 @@ void setup() {
     Serial.begin(115200);
     Serial.println("G24::GMSController - Attempting LTE Conection...");
     
-    mqtt.set_mutex(dataProcessor.get_mutex());
-    gsm7600.set_mutex(dataProcessor.get_mutex());
+    dataProcessor.set_mutex(xMutex);
+    mqtt.set_mutex(xMutex);
+    gsm7600.set_mutex(xMutex);
 
     gsm7600.begin();
     if (!gsm7600.is_connected()) {
@@ -76,40 +80,45 @@ void setup() {
     ubloxGPS.set_data_processor(&dataProcessor);
 
     // Start CAN Controller on Core 0
-    xTaskCreatePinnedToCore(
-        CAN::listenTask,
-        "CANController",
-        8192,
-        &canController,
-        10,
-        NULL,
-        1 // Core 0
-    );
+    // xTaskCreatePinnedToCore(
+    //     CAN::listenTask,
+    //     "CANController",
+    //     4096,
+    //     &canController,
+    //     4,
+    //     NULL,
+    //     0
+    // );
 
-    // Start GPS Controller on Core 1
-    xTaskCreatePinnedToCore(
-        UboxGPS::listenTask,
-        "UboxGPS",
-        8192,
-        &ubloxGPS,
-        3,
-        NULL,
-        0 // Core 1
-    );
+    // // Start GPS Controller on Core 1
+    // xTaskCreatePinnedToCore(
+    //     UboxGPS::listenTask,
+    //     "UboxGPS",
+    //     4096,
+    //     &ubloxGPS,
+    //     3,
+    //     NULL,
+    //     1
+    // );
 
     // Start Check Connections on Core 1
     xTaskCreatePinnedToCore(
         check_connections,
         "CheckConnections",
-        8192,
+        4096,
         NULL,
         2,
         NULL,
-        0 // Core 1
+        1
     );  
 }
 
-void loop(){  
+void loop(){ 
+    if (!mqttClient->connected()) {
+        mqtt.connect();
+    } 
     mqtt.loop(); 
+    canController.listen();
+    ubloxGPS.listen();
     vTaskDelay(pdMS_TO_TICKS(10));
 }

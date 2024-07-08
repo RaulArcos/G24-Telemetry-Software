@@ -77,6 +77,10 @@ void MQTT::publish_can_frame_2(const char* message){
     _client.publish(can_frame_2_topic, message);
 }
 
+void MQTT::publish(const char* topic, const char* message){
+    _client.publish(topic, message);
+}
+
 void MQTT::callback(char* topic, byte* payload, unsigned int length){
     Serial.print("Message arrived [");
     Serial.print(topic);

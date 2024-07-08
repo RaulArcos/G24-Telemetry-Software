@@ -3,6 +3,7 @@
 
 #include "common/common_libraries.hpp"
 #include "common/g24_telemetry_data.hpp"
+#include "common/topics.hpp"
 #include "mqtt.hpp"
 
 #include <freertos/FreeRTOS.h>
@@ -20,6 +21,7 @@ public:
     void send_frame_1(int lfws, int rfws, int lrws, int rrws, int maph, int mapl, int ect);
     void send_frame_2(int lambh, int lambl, int lamth, int lamtl, int bvolth, int bvoltl, int iat);
     void set_mutex(SemaphoreHandle_t mutex) { _mutex = mutex; }
+    void send_data(const char* topic, StaticJsonDocument<200>& doc);
 
 
 private:

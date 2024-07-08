@@ -78,30 +78,7 @@ void setup() {
     dataProcessor.set_mqtt_controller(&mqtt);
     canController.set_data_proccessor(&dataProcessor);
     ubloxGPS.set_data_processor(&dataProcessor);
-
-    // Start CAN Controller on Core 0
-    // xTaskCreatePinnedToCore(
-    //     CAN::listenTask,
-    //     "CANController",
-    //     4096,
-    //     &canController,
-    //     4,
-    //     NULL,
-    //     0
-    // );
-
-    // // Start GPS Controller on Core 1
-    // xTaskCreatePinnedToCore(
-    //     UboxGPS::listenTask,
-    //     "UboxGPS",
-    //     4096,
-    //     &ubloxGPS,
-    //     3,
-    //     NULL,
-    //     1
-    // );
-
-    // Start Check Connections on Core 1
+    
     xTaskCreatePinnedToCore(
         check_connections,
         "CheckConnections",

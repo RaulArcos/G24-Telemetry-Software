@@ -39,7 +39,7 @@ void GSM7600::end() {
 
 void GSM7600::connect() {
     Serial.print("Setting network mode to LTE...");
-    SerialAT.println("AT+CNMP=38");  // Set to LTE only
+    SerialAT.println("AT+CNMP=51");  // Set to LTE only
     delay(1000);
     String response = "";
     unsigned long startMillis = millis();

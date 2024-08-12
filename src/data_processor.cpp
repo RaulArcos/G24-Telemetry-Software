@@ -60,18 +60,14 @@ void DataProcessor::send_frame_0(int rpmh, int rpml, int tpsh, int tpsl, int brk
     StaticJsonDocument<200> doc;
     doc["rpm"] = (rpmh * 256) + rpml;
     doc["tps"] = (tpsh * 256) + tpsl;
-    doc["brk"] = (brkh * 256) + brkl;
+    doc["ect"] = (brkh * 256) + brkl;
     doc["gear"] = gear;
     send_data(can_frame_0_topic, doc);
 }
 
-void DataProcessor::send_frame_1(int lfws, int rfws, int lrws, int rrws, int maph, int mapl, int ect){
+void DataProcessor::send_frame_1(int brkh, int brkl, int lrws, int rrws, int maph, int mapl, int ect){
     StaticJsonDocument<200> doc;
-    doc["lfws"] = lfws;
-    doc["rfws"] = rfws;
-    doc["lrws"] = lrws;
-    doc["rrws"] = rrws;
-    doc["map"] = (maph * 256) + mapl;
+    doc["brk"] = (brkh * 256) + brkl;
     doc["ect"] = ect;
     send_data(can_frame_1_topic, doc);
 }

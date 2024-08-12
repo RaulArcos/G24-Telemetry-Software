@@ -1,10 +1,10 @@
 #ifndef CAN_HPP
 #define CAN_HPP
 
-#define RX_PIN 12
-#define TX_PIN 39
-#define POLLING_RATE_MS 10
-#define TRANSMIT_RATE_MS 10
+#define RX_PIN 13
+#define TX_PIN 14
+#define POLLING_RATE_MS 20
+#define TRANSMIT_RATE_MS 200
 
 #include "driver/twai.h"
 #include "common/common_libraries.hpp"
